@@ -26,15 +26,17 @@ preferences {
 // ********************************************************************************************************************
 
 metadata {
-	definition (name: "URI Switch with toggle", namespace: "JayUK", author: "JayUK") {
+	definition (name: "URI Switch with toggle", 
+		    namespace: "JayUK", 
+		    author: "JayUK")
+	{
 		capability "Actuator"
-			capability "Switch"
-			capability "Sensor"
+		capability "Switch"
+		capability "Sensor"
 	}
 
 	// simulator metadata
-	simulator {
-	}
+	simulator {}
 
 	// UI tile definitions
 	tiles {
