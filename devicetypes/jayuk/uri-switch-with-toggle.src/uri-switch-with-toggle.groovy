@@ -96,7 +96,7 @@ def on() {
 	}
 
 	if (enable_off_delay ){
-		runIn(enable_off_delay*60,off)
+		runIn(enable_off_delay*60, switch.off())
 	}
 
 }
@@ -134,6 +134,6 @@ def off() {
 	}
 	
 	if (enable_on_delay){
-		runIn(enable_on_delay*60,on)
+		runIn(enable_on_delay*60, switch.on())
 	}
 }
