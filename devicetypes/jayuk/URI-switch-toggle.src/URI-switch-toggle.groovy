@@ -19,7 +19,7 @@ preferences {
 		input "internal_off_path", "text", title: "Internal Off Path (/blah?q=this)", required: false
 	}
 	
-	section("Re-enable"){
+	section("Toggle"){
 		input "enable_on_delay", "number", title: "Number of minutes before enabling after being turned off", range: "0..60", required: false
 		input "enable_off_delay", "number", title: "Number of minutes before disabling after being turned on", range: "0..60", required: false
 	}
