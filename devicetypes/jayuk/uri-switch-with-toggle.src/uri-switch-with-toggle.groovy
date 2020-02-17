@@ -59,7 +59,7 @@ def parse(String description) {
 	log.debug(description)
 }
 // ********************************************************************************************************************
-def on() {
+def on(toggle) {
 	if (external_on_uri){
 		// sendEvent(name: "switch", value: "on")
 		// log.debug "Executing ON"
@@ -95,13 +95,13 @@ def on() {
 			log.debug result
 	}
 
-	if (enable_off_delay ){
-		runIn(enable_off_delay*60, switch.off())
+	if (enable_off_delay && !toggle){
+		runIn(enable_off_delay*60, off(true))
 	}
 
 }
 // ********************************************************************************************************************
-def off() {
+def off(toggle) {
 	if (external_off_uri){
 		def cmd = "${settings.external_off_uri}";
 		log.debug "Sending request cmd[${cmd}]"
@@ -133,7 +133,7 @@ def off() {
 			log.debug result
 	}
 	
-	if (enable_on_delay){
-		runIn(enable_on_delay*60, switch.on())
+	if (enable_on_delay && !toggle){
+		runIn(enable_on_delay*60, on(true))
 	}
 }
