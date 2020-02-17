@@ -4,8 +4,7 @@
 *
 * Device Handler
 */
-
-
+// ********************************************************************************************************************
 preferences {
 	section("External Access"){
 		input "external_on_uri", "text", title: "External On URI", required: false
@@ -24,7 +23,7 @@ preferences {
 		input "enable_off_delay", "number", title: "Number of minutes before disabling after being turned on", range: "0..60", required: false
 	}
 }
-
+// ********************************************************************************************************************
 
 metadata {
 	definition (name: "URI Switch with toggle", namespace: "JayUK", author: "JayUK") {
@@ -53,11 +52,11 @@ metadata {
 			details (["button","onButton","offButton"])
 	}
 }
-
+// ********************************************************************************************************************
 def parse(String description) {
 	log.debug(description)
 }
-
+// ********************************************************************************************************************
 def on() {
 	if (external_on_uri){
 		// sendEvent(name: "switch", value: "on")
@@ -99,7 +98,7 @@ def on() {
 	}
 
 }
-
+// ********************************************************************************************************************
 def off() {
 	if (external_off_uri){
 		def cmd = "${settings.external_off_uri}";
