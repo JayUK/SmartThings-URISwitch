@@ -56,21 +56,19 @@ metadata {
 }
 // ********************************************************************************************************************
 def parse(String description) {
-	log.debug(description)
+	log.debug "URI Switch: $description"
 }
 // ********************************************************************************************************************
-def on(toggle) {
+def on() {
+	
 	if (external_on_uri){
-		// sendEvent(name: "switch", value: "on")
-		// log.debug "Executing ON"
-
 		def cmd = "${settings.external_on_uri}";
 
-		log.debug "Sending request cmd[${cmd}]"
+		log.debug "URI Switch: Sending request cmd[${cmd}]"
 
 			httpGet(cmd) {resp ->
 				if (resp.data) {
-					log.info "${resp.data}"
+					log.info "URI Switch: ${resp.data}"
 				} 
 			}
 	}
@@ -91,20 +89,22 @@ def on(toggle) {
 				)
 			sendHubCommand(result)
 			sendEvent(name: "switch", value: "on") 
-			log.debug "Executing ON" 
-			log.debug result
+			log.debug "URI Switch: Executing ON" 
+			log.debug "URI Switch: $result"
 	}
-
-	if (enable_off_delay && !toggle){
-		runIn(enable_off_delay*60, off(true))
+    
+    if (enable_off_delay){
+    	log.debug "URI Switch: Scheduling off for ${enable_off_delay} minutes time"
+		runIn(enable_off_delay*60, off)
 	}
-
 }
+
 // ********************************************************************************************************************
-def off(toggle) {
+def off() {
+
 	if (external_off_uri){
 		def cmd = "${settings.external_off_uri}";
-		log.debug "Sending request cmd[${cmd}]"
+		log.debug "URI Switch: Sending request cmd[${cmd}]"
 			httpGet(cmd) {resp ->
 				if (resp.data) {
 					log.info "${resp.data}"
@@ -129,11 +129,13 @@ def off(toggle) {
 
 			sendHubCommand(result)
 			sendEvent(name: "switch", value: "off")
-			log.debug "Executing OFF" 
-			log.debug result
+			log.debug "URI Switch: Executing OFF" 
+			log.debug "URI Switch: $result"
 	}
-	
-	if (enable_on_delay && !toggle){
-		runIn(enable_on_delay*60, on(true))
+    
+   	if (enable_on_delay){
+    	log.debug "URI Switch: Scheduling on for ${enable_on_delay} minutes time"
+		runIn(enable_on_delay*60, on)
 	}
+
 }
