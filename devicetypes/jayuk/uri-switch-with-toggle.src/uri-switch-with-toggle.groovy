@@ -1,14 +1,12 @@
 /*
-* Author: tguerena and surge919
-*		modified by JayUK to support toggle feature		
+*		Virtual toggle switch to execute a URI/URL
 *
-* Device Handler
 */
 // ********************************************************************************************************************
 preferences {
 	section("External Access"){
-		input "external_on_uri", "text", title: "External On URI", required: false
-		input "external_off_uri", "text", title: "External Off URI", required: false
+		input "external_on_uri", "text", title: "External On URI (http://x.x.x.x:port/blah?q=this)", required: false
+		input "external_off_uri", "text", title: "External Off URI (http://x.x.x.x:port/blah?q=this)", required: false
 	}
     
 	section("Internal Access"){
@@ -41,8 +39,8 @@ metadata {
 	// UI tile definitions
 	tiles {
 		standardTile("button", "device.switch", width: 2, height: 2, canChangeIcon: true) {
-			state "off", label: 'Off', action: "switch.on", icon: "st.switches.switch.off", backgroundColor: "#ffffff", nextState: "on"
-				state "on", label: 'On', action: "switch.off", icon: "st.switches.switch.on", backgroundColor: "#79b821", nextState: "off"
+			state "off", label: 'Off', action: "switch.off", icon: "st.switches.switch.off", backgroundColor: "#ffffff", nextState: "on"
+				state "on", label: 'On', action: "switch.on", icon: "st.switches.switch.on", backgroundColor: "#79b821", nextState: "off"
 		}
 		standardTile("offButton", "device.button", width: 1, height: 1, canChangeIcon: true) {
 			state "default", label: 'Force Off', action: "switch.off", icon: "st.switches.switch.off", backgroundColor: "#ffffff"
@@ -59,83 +57,113 @@ def parse(String description) {
 	log.debug "URI Switch: $description"
 }
 // ********************************************************************************************************************
-def on() {
+def on() {	
+    
+    if (enable_on_delay) {
+        log.debug "URI Switch: Unscheduling any existing on_action"
+    	unschedule(on_action)
+    }
+    
+    if (enable_off_delay){
+    	log.debug "URI Switch: Scheduling off for ${enable_off_delay} minutes time"
+		runIn(enable_off_delay*60, off_action)
+	}
+    
+    on_action()
+}
+// ********************************************************************************************************************
+def on_action() {
 	
 	if (external_on_uri){
 		def cmd = "${settings.external_on_uri}";
 
 		log.debug "URI Switch: Sending request cmd[${cmd}]"
 
-			httpGet(cmd) {resp ->
-				if (resp.data) {
-					log.info "URI Switch: ${resp.data}"
-				} 
-			}
-	}
-	if (internal_on_path){
-		def port
-			if (internal_port){
-				port = "${internal_port}"
-			} else {
-				port = 80
-			}
-
-		def result = new physicalgraph.device.HubAction(
-				method: "GET",
-				path: "${internal_on_path}",
-				headers: [
-				HOST: "${internal_ip}:${port}"
-				]
-				)
-			sendHubCommand(result)
-			sendEvent(name: "switch", value: "on") 
-			log.debug "URI Switch: Executing ON" 
-			log.debug "URI Switch: $result"
+        httpGet(cmd) {resp ->
+            if (resp.data) {
+                log.info "URI Switch: ${resp.data}"
+            } 
+        }
+        sendHubCommand(result)
+        sendEvent(name: "switch", value: "on") 
+        log.debug "URI Switch: Executing ON" 
+        log.debug "URI Switch: $result"
 	}
     
-    if (enable_off_delay){
-    	log.debug "URI Switch: Scheduling off for ${enable_off_delay} minutes time"
-		runIn(enable_off_delay*60, off)
+	if (internal_on_path){
+		def port
+        
+        if (internal_port){
+            port = "${internal_port}"
+        } else {
+            port = 80
+        }
+
+		def result = new physicalgraph.device.HubAction(
+            method: "GET",
+            path: "${internal_on_path}",
+            headers: [
+				HOST: "${internal_ip}:${port}"
+			]
+		)
+        sendHubCommand(result)
+        sendEvent(name: "switch", value: "on") 
+        log.debug "URI Switch: Executing ON" 
+        log.debug "URI Switch: $result"
 	}
 }
 
 // ********************************************************************************************************************
 def off() {
+    
+    if (enable_off_delay) {
+    	log.debug "URI Switch: Unscheduling any existing off_action"
+    	unschedule(off_action)
+    }
+    
+   	if (enable_on_delay){
+    	log.debug "URI Switch: Scheduling on for ${enable_on_delay} minutes time"
+		runIn(enable_on_delay*60, on_action)
+	}
+
+	off_action()
+}
+// ********************************************************************************************************************
+def off_action() {
 
 	if (external_off_uri){
 		def cmd = "${settings.external_off_uri}";
 		log.debug "URI Switch: Sending request cmd[${cmd}]"
-			httpGet(cmd) {resp ->
-				if (resp.data) {
-					log.info "${resp.data}"
-				} 
-			}
-	}
-	if (internal_off_path){
-		def port
-			if (internal_port){
-				port = "${internal_port}"
-			} else {
-				port = 80
-			}
-
-		def result = new physicalgraph.device.HubAction(
-				method: "GET",
-				path: "${internal_off_path}",
-				headers: [
-				HOST: "${internal_ip}:${port}"
-				]
-				)
-
-			sendHubCommand(result)
-			sendEvent(name: "switch", value: "off")
-			log.debug "URI Switch: Executing OFF" 
-			log.debug "URI Switch: $result"
+        httpGet(cmd) {resp ->
+            if (resp.data) {
+                log.info "${resp.data}"
+            } 
+        }
+		sendHubCommand(result)
+        sendEvent(name: "switch", value: "off")
+        log.debug "URI Switch: Executing OFF" 
+        log.debug "URI Switch: $result"
 	}
     
-   	if (enable_on_delay){
-    	log.debug "URI Switch: Scheduling on for ${enable_on_delay} minutes time"
-		runIn(enable_on_delay*60, on)
-	}
+	if (internal_off_path){
+		def port
 
+		if (internal_port){
+            port = "${internal_port}"
+        } else {
+            port = 80
+        }
+
+		def result = new physicalgraph.device.HubAction(
+            method: "GET",
+            path: "${internal_off_path}",
+            headers: [
+                HOST: "${internal_ip}:${port}"
+            ]
+        )
+		sendHubCommand(result)
+        sendEvent(name: "switch", value: "off")
+        log.debug "URI Switch: Executing OFF" 
+        log.debug "URI Switch: $result"
+	}
 }
