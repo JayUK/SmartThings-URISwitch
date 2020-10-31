@@ -74,6 +74,9 @@ def on() {
 // ********************************************************************************************************************
 def on_action() {
 	
+    sendEvent(name: "switch", value: "on") 
+    log.debug "URI Switch: Executing ON" 
+    
 	if (external_on_uri){
 		def cmd = "${settings.external_on_uri}";
 
@@ -84,10 +87,6 @@ def on_action() {
                 log.info "URI Switch: ${resp.data}"
             } 
         }
-        sendHubCommand(result)
-        sendEvent(name: "switch", value: "on") 
-        log.debug "URI Switch: Executing ON" 
-        log.debug "URI Switch: $result"
 	}
     
 	if (internal_on_path){
@@ -107,8 +106,6 @@ def on_action() {
 			]
 		)
         sendHubCommand(result)
-        sendEvent(name: "switch", value: "on") 
-        log.debug "URI Switch: Executing ON" 
         log.debug "URI Switch: $result"
 	}
 }
@@ -131,6 +128,9 @@ def off() {
 // ********************************************************************************************************************
 def off_action() {
 
+	sendEvent(name: "switch", value: "off")
+    log.debug "URI Switch: Executing OFF" 
+
 	if (external_off_uri){
 		def cmd = "${settings.external_off_uri}";
 		log.debug "URI Switch: Sending request cmd[${cmd}]"
@@ -139,10 +139,6 @@ def off_action() {
                 log.info "${resp.data}"
             } 
         }
-		sendHubCommand(result)
-        sendEvent(name: "switch", value: "off")
-        log.debug "URI Switch: Executing OFF" 
-        log.debug "URI Switch: $result"
 	}
     
 	if (internal_off_path){
@@ -162,8 +158,6 @@ def off_action() {
             ]
         )
 		sendHubCommand(result)
-        sendEvent(name: "switch", value: "off")
-        log.debug "URI Switch: Executing OFF" 
         log.debug "URI Switch: $result"
 	}
 }
